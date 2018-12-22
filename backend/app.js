@@ -1,11 +1,28 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+
+const postRoutes = require("./routes/posts");
 
 const app = express();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+const dbPW = "WLaSw4ryDGnkisQC";
 
+mongoose
+  .connect(
+    `mongodb+srv://mongoUser:${dbPW}@cluster0-1e4le.mongodb.net/mean?retryWrites=true`,
+    { useNewUrlParser: true }
+  )
+  .then(() => {
+    console.log("Connected to database!");
+  })
+  .catch(() => {
+    console.log("Failed connection to database!");
+  });
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+2;
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -14,41 +31,11 @@ app.use((req, res, next) => {
   );
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET, POST, PATCH, DELETE, OPTIONS"
+    "GET, POST, PATCH, PUT, DELETE, OPTIONS"
   );
   next();
 });
 
-app.get("/api/posts", (req, res, next) => {
-  const posts = [
-    {
-      id: "adfewfwd",
-      title: "First server-side post",
-      content: "This is comming from the server!"
-    },
-    {
-      id: "asdfasdf",
-      title: "Second server-side post",
-      content: "This is comming from the server!"
-    },
-    {
-      id: "gdfhdfgh",
-      title: "Third server-side post",
-      content: "This is comming from the server!"
-    }
-  ];
-  res.status(200).json({
-    message: "Posts fetched successfully!",
-    posts: posts
-  });
-});
-
-app.post('/api/posts', (req, res, next) => {
-  const post = req.body;
-  console.log(post);
-  res.status(201).json({
-    message: 'Post added successfully'
-  });
-});
+app.use("/api/posts", postRoutes);
 
 module.exports = app;
